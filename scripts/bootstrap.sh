@@ -6,8 +6,9 @@ WORKSPACE_ROOT="${OPENSWARM_WORKSPACE:-/workspace/projects}"
 MODELS_FILE="${ROOT_DIR}/config/ollama_models.yaml"
 
 wait_for_ollama() {
+  local host="${OLLAMA_HOST:-127.0.0.1:11434}"
   local retries=30
-  until curl -fsS "http://127.0.0.1:11434/api/tags" >/dev/null 2>&1; do
+  until curl -fsS "http://${host}/api/tags" >/dev/null 2>&1; do
     retries=$((retries - 1))
     if [[ "${retries}" -le 0 ]]; then
       echo "Ollama did not become ready in time" >&2

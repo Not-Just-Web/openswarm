@@ -1,30 +1,94 @@
 services:
-  openswarm:
+  redis:
+    image: redis:7-alpine
+    container_name: openswarm-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: always
+    networks:
+      - swarm-net
+
+  ollama:
+    image: ollama/ollama
+    container_name: openswarm-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    networks:
+      - swarm-net
+
+  dashboard:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: openswarm
+    container_name: openswarm-dashboard
     ports:
-      - "8277:8277"
-      - "11434:11434"
+      - "${DASHBOARD_PORT:-8277}:${DASHBOARD_PORT:-8277}"
+    environment:
+      DASHBOARD_PORT: ${DASHBOARD_PORT:-8277}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - ./:/app
+      - dashboard-node-modules:/app/dashboard/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: ["node", "/app/dashboard/server.js"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: always
+    networks:
+      - swarm-net
+
+  supervisor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openswarm-supervisor
     environment:
       OPENSWARM_ROOT: /app
       OPENSWARM_WORKSPACE: /workspace/projects
-      DASHBOARD_PORT: 8277
-      REDIS_HOST: 127.0.0.1
+      REDIS_HOST: redis
       REDIS_PORT: 6379
-      OLLAMA_HOST: 0.0.0.0:11434
-      OLLAMA_MODEL: kimi
+      OLLAMA_HOST: ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-kimi}
       HEARTBEAT_INTERVAL: 15
     volumes:
       - ./:/app
       - openswarm-workspace:/workspace
-      - dashboard-node-modules:/app/dashboard/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
-      - ollama-data:/root/.ollama
-    restart: unless-stopped
+    command: ["/app/scripts/entrypoint.sh"]
+    depends_on:
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+    restart: always
+    networks:
+      - swarm-net
 
 volumes:
   ollama-data:
   dashboard-node-modules:
   openswarm-workspace:
+
+networks:
+  swarm-net:
+    driver: bridge

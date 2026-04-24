@@ -12,3 +12,5 @@
 ## Wiki
 
 - [[wiki/overview|Overview]] - Project summary and operating model.
+- [[wiki/architecture|Architecture]] - Microservices and Swarm infrastructure.
+- [[wiki/token_optimization|Token Optimization]] - Using Graphify for efficient context management.

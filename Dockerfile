@@ -2,7 +2,6 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/go/bin:/usr/local/go/bin:${PATH}"
-ENV OLLAMA_HOST=0.0.0.0:11434
 
 WORKDIR /app
 
@@ -20,17 +19,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     tmux \
     golang-go \
     redis-tools \
-    redis-server \
     procps \
     lsb-release \
     gnupg \
     zstd \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install graphifyy
+
 RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
 RUN apt-get update && apt-get install -y --no-install-recommends nodejs && rm -rf /var/lib/apt/lists/*
 
 RUN curl -fsSL https://ollama.com/install.sh | sh
+
 RUN npm install -g @anthropic-ai/claude-code openclaw opencode-ai@latest @google/gemini-cli
 
 COPY dashboard/package.json /app/dashboard/package.json
@@ -40,6 +41,6 @@ COPY . /app
 
 RUN chmod +x /app/scripts/*.sh /app/agents/*.sh /app/shared/*.sh
 
-EXPOSE 8277 11434 6379
+EXPOSE 8277
 
-ENTRYPOINT ["/app/scripts/entrypoint.sh"]
+CMD ["tail", "-f", "/dev/null"]

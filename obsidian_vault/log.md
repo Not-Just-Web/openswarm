@@ -1,5 +1,5 @@
 # OpenSwarm Vault Log
 
-## [2026-04-24] scaffold | Initial vault bootstrap
+## [2026-04-24] architectural overhaul | Microservices & Swarm
 
-Created the Obsidian vault structure, wiki schema, and index for the Docker-based OpenSwarm project.
+Decoupled the monolithic setup into a microservices architecture (Redis, Ollama, Dashboard, Supervisor). Added healthchecks, resource limits, and Docker Swarm deployment support. Integrated `graphify` for token optimization.
