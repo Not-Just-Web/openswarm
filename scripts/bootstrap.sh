@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="${OPENSWARM_ROOT:-/app}"
+WORKSPACE_ROOT="${OPENSWARM_WORKSPACE:-/workspace/projects}"
 MODELS_FILE="${ROOT_DIR}/config/ollama_models.yaml"
 
 wait_for_ollama() {
@@ -30,7 +31,7 @@ pull_models() {
 }
 
 main() {
-  mkdir -p "${ROOT_DIR}/runtime/logs" "${ROOT_DIR}/runtime/pids"
+  mkdir -p "${ROOT_DIR}/runtime/logs" "${ROOT_DIR}/runtime/pids" "${WORKSPACE_ROOT}"
   wait_for_ollama
   pull_models
 

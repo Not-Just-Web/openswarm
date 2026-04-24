@@ -32,9 +32,14 @@
               Command
               <textarea id="command" rows="5" placeholder="Tell the swarm what to do"></textarea>
             </label>
+            <label>
+              Project Path
+              <input id="project-path" type="text" placeholder="/workspace/projects/my-new-app" />
+            </label>
             <button type="submit">Send Instruction</button>
           </form>
           <p id="command-status" class="status"></p>
+          <p id="workspace-root" class="meta"></p>
         </article>
 
         <article class="panel">

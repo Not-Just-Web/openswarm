@@ -6,6 +6,8 @@ ENV OLLAMA_HOST=0.0.0.0:11434
 
 WORKDIR /app
 
+RUN mkdir -p /workspace/projects
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \

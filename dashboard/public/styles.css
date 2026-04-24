@@ -69,7 +69,8 @@ body {
 label,
 button,
 textarea,
-select {
+select,
+input {
   display: block;
   width: 100%;
 }
@@ -81,6 +82,7 @@ label {
 
 textarea,
 select,
+input,
 button {
   border-radius: 16px;
   border: 1px solid var(--line);

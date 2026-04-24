@@ -9,6 +9,7 @@ services:
       - "11434:11434"
     environment:
       OPENSWARM_ROOT: /app
+      OPENSWARM_WORKSPACE: /workspace/projects
       DASHBOARD_PORT: 8277
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
@@ -17,6 +18,7 @@ services:
       HEARTBEAT_INTERVAL: 15
     volumes:
       - ./:/app
+      - openswarm-workspace:/workspace
       - dashboard-node-modules:/app/dashboard/node_modules
       - /var/run/docker.sock:/var/run/docker.sock
       - ollama-data:/root/.ollama
@@ -25,3 +27,4 @@ services:
 volumes:
   ollama-data:
   dashboard-node-modules:
+  openswarm-workspace:

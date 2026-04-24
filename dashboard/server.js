@@ -11,6 +11,7 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const ROOT_DIR = process.env.OPENSWARM_ROOT || "/app";
+const WORKSPACE_ROOT = process.env.OPENSWARM_WORKSPACE || "/workspace/projects";
 const PORT = Number(process.env.DASHBOARD_PORT || 8277);
 const LOG_FILE = path.join(ROOT_DIR, "runtime", "logs", "swarm.log");
 const HEARTBEAT_FILE = path.join(ROOT_DIR, "runtime", "heartbeats.jsonl");
@@ -71,6 +72,7 @@ app.get("/api/status", async (_req, res) => {
   const dockerSummary = await getDockerSummary();
   res.json({
     now: new Date().toISOString(),
+    workspaceRoot: WORKSPACE_ROOT,
     docker: dockerSummary,
     heartbeats: parseHeartbeats(),
     logs: safeReadLines(LOG_FILE, 100),
@@ -85,6 +87,7 @@ app.post("/api/command", (req, res) => {
     payload: {
       command: body.command || "",
       notes: body.notes || "",
+      project_path: body.project_path || "",
     },
   });
 
@@ -99,6 +102,7 @@ app.post("/api/command", (req, res) => {
 
 io.on("connection", async (socket) => {
   socket.emit("snapshot", {
+    workspaceRoot: WORKSPACE_ROOT,
     docker: await getDockerSummary(),
     heartbeats: parseHeartbeats(),
     logs: safeReadLines(LOG_FILE, 100),
@@ -107,6 +111,7 @@ io.on("connection", async (socket) => {
 
 setInterval(async () => {
   io.emit("telemetry", {
+    workspaceRoot: WORKSPACE_ROOT,
     docker: await getDockerSummary(),
     heartbeats: parseHeartbeats(),
     logs: safeReadLines(LOG_FILE, 100),

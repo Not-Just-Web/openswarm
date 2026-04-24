@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: build up dashboard swarm logs clean down recover
+.PHONY: build up dashboard swarm logs clean down recover shell new-project
 
 build:
 	docker compose build
@@ -17,6 +17,13 @@ swarm:
 logs:
 	docker compose logs -f openswarm
 
+shell:
+	docker compose exec openswarm bash
+
+new-project:
+	@test -n "$(name)" || (echo "Usage: make new-project name=my-app" && exit 1)
+	docker compose exec openswarm /app/scripts/create_project.sh "$(name)"
+
 down:
 	docker compose down
 
@@ -32,4 +39,3 @@ recover:
 		echo "Recovered OpenSwarm project files from Makefile payload."
 
 # RECOVERY H4sIAMO+6mkAA+19TXMbSbKY3gs7HIaP9rOProGkETiLbnQ3vkiMpPcoihpxl19LULM7q9UDm+gC
-

@@ -6,6 +6,7 @@ const heartbeats = document.getElementById("heartbeats");
 const logs = document.getElementById("logs");
 const commandForm = document.getElementById("command-form");
 const commandStatus = document.getElementById("command-status");
+const workspaceRoot = document.getElementById("workspace-root");
 
 function ageLabel(timestamp) {
   const ageMs = Date.now() - new Date(timestamp).getTime();
@@ -48,6 +49,7 @@ function renderLogs(items) {
 }
 
 function renderSnapshot(payload) {
+  workspaceRoot.textContent = payload.workspaceRoot ? `Workspace root: ${payload.workspaceRoot}` : "";
   renderDocker(payload.docker);
   renderHeartbeats(payload.heartbeats || []);
   renderLogs(payload.logs || []);
@@ -61,6 +63,7 @@ commandForm.addEventListener("submit", async (event) => {
   const body = {
     target: document.getElementById("target").value,
     command: document.getElementById("command").value.trim(),
+    project_path: document.getElementById("project-path").value.trim(),
   };
 
   const response = await fetch("/api/command", {
@@ -72,6 +75,7 @@ commandForm.addEventListener("submit", async (event) => {
   if (response.ok) {
     commandStatus.textContent = "Instruction dispatched to the swarm.";
     document.getElementById("command").value = "";
+    document.getElementById("project-path").value = "";
   } else {
     const data = await response.json().catch(() => ({}));
     commandStatus.textContent = data.error || "Failed to dispatch instruction.";
