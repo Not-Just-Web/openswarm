@@ -1,0 +1,27 @@
+services:
+  openswarm:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: openswarm
+    ports:
+      - "8277:8277"
+      - "11434:11434"
+    environment:
+      OPENSWARM_ROOT: /app
+      DASHBOARD_PORT: 8277
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      OLLAMA_HOST: 0.0.0.0:11434
+      OLLAMA_MODEL: kimi
+      HEARTBEAT_INTERVAL: 15
+    volumes:
+      - ./:/app
+      - dashboard-node-modules:/app/dashboard/node_modules
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ollama-data:/root/.ollama
+    restart: unless-stopped
+
+volumes:
+  ollama-data:
+  dashboard-node-modules:

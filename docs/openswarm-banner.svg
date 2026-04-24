@@ -1,0 +1,54 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="640" fill="#07111F"/>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <circle cx="190" cy="112" r="210" fill="url(#glowA)" opacity="0.55"/>
+  <circle cx="1080" cy="118" r="180" fill="url(#glowB)" opacity="0.45"/>
+  <circle cx="1000" cy="540" r="220" fill="url(#glowC)" opacity="0.25"/>
+
+  <g opacity="0.9">
+    <rect x="93" y="121" width="182" height="92" rx="24" fill="#0C1E33" stroke="#305A83"/>
+    <rect x="338" y="79" width="220" height="110" rx="28" fill="#0D2238" stroke="#4A7AA6"/>
+    <rect x="617" y="109" width="230" height="118" rx="28" fill="#0D2238" stroke="#4A7AA6"/>
+    <rect x="912" y="141" width="188" height="96" rx="24" fill="#0C1E33" stroke="#305A83"/>
+    <rect x="410" y="264" width="470" height="138" rx="34" fill="#102945" stroke="#7CE0B8" stroke-width="2"/>
+    <path d="M275 167H338" stroke="#78B8FF" stroke-width="4" stroke-linecap="round"/>
+    <path d="M558 145H617" stroke="#78B8FF" stroke-width="4" stroke-linecap="round"/>
+    <path d="M847 168H912" stroke="#78B8FF" stroke-width="4" stroke-linecap="round"/>
+    <path d="M640 227V264" stroke="#7CE0B8" stroke-width="4" stroke-linecap="round"/>
+    <path d="M499 213L545 264" stroke="#7CE0B8" stroke-width="4" stroke-linecap="round"/>
+    <path d="M782 227L733 264" stroke="#7CE0B8" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <g opacity="0.9">
+    <circle cx="184" cy="167" r="11" fill="#7CE0B8"/>
+    <circle cx="447" cy="145" r="12" fill="#78B8FF"/>
+    <circle cx="731" cy="168" r="12" fill="#78B8FF"/>
+    <circle cx="1006" cy="189" r="11" fill="#7CE0B8"/>
+    <circle cx="640" cy="333" r="16" fill="#7CE0B8"/>
+  </g>
+
+  <text x="92" y="470" fill="#7CE0B8" font-family="Verdana, Geneva, sans-serif" font-size="24" letter-spacing="6">NOTJUSTWEB</text>
+  <text x="88" y="534" fill="#EDF6FF" font-family="Verdana, Geneva, sans-serif" font-size="88" font-weight="700">OpenSwarm</text>
+  <text x="92" y="580" fill="#B2C7DA" font-family="Verdana, Geneva, sans-serif" font-size="28">Dockerized multi-agent orchestration with shell agents, Redis coordination,</text>
+  <text x="92" y="614" fill="#B2C7DA" font-family="Verdana, Geneva, sans-serif" font-size="28">a live dashboard, and an Obsidian memory vault.</text>
+
+  <defs>
+    <linearGradient id="bg" x1="106" y1="43" x2="1164" y2="628" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#081624"/>
+      <stop offset="0.53" stop-color="#0A1D31"/>
+      <stop offset="1" stop-color="#0F2743"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(190 112) rotate(90) scale(210)">
+      <stop stop-color="#7CE0B8"/>
+      <stop offset="1" stop-color="#7CE0B8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1080 118) rotate(90) scale(180)">
+      <stop stop-color="#72B6FF"/>
+      <stop offset="1" stop-color="#72B6FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1000 540) rotate(90) scale(220)">
+      <stop stop-color="#7CE0B8"/>
+      <stop offset="1" stop-color="#7CE0B8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
