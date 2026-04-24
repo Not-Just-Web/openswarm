@@ -75,10 +75,12 @@ flowchart TD
 | Agent | Expertise |
 | --- | --- |
 | `main_agent` | Supervisor, routing, and container orchestration |
+| `manager_agent` | Agency-style planning + discussion, then dispatches work to specialists |
 | `coder_agent` | Full-stack development and bug fixing |
 | `tester_agent` | Quality assurance and verification |
 | `pm_agent` | Planning, summaries, and logic framing |
 | `techlead_agent` | Technical architecture and review |
+| `designer_agent` | UI/UX and product polish |
 
 ## Project Layout
 
@@ -86,7 +88,7 @@ flowchart TD
 .
 ├── agents/           # Specialist AI shell scripts
 ├── config/           # Agent and model configurations
-├── dashboard/        # Node.js + Socket.IO control panel
+├── dashboard/        # Next.js 16 + TypeScript dashboard (port 8277)
 ├── obsidian_vault/   # Long-term memory and wiki
 ├── scripts/          # Lifecycle, bootstrap, and entrypoints
 ├── shared/           # Redis bus and logging utilities
@@ -98,6 +100,7 @@ flowchart TD
 ## Features
 
 - **Microservices**: Decoupled Redis, Ollama, Dashboard, and Supervisor containers.
+- **Next.js Dashboard**: TypeScript + Tailwind CSS UI with hot reload in dev mode.
 - **Horizontal Scaling**: Use `make scale agent=coder_agent num=3` for parallel processing.
 - **Auto-Respawn**: Built-in healthchecks and `restart: always` logic.
 - **Token Optimization**: Integrated **Graphify** for code-graph context reduction.
@@ -107,10 +110,52 @@ flowchart TD
 
 ```bash
 cp .env.example .env
-make build
-make up
+make build   # builds all Docker images
+make up      # starts the full stack
 ```
-Visit [http://localhost:8277](http://localhost:8277).
+
+Visit **[http://localhost:8277](http://localhost:8277)** — served by the Next.js dashboard.
+
+## Dashboard
+
+The dashboard (`dashboard/`) is a standalone **Next.js 16 + TypeScript** app.
+
+| Mode | Command | Description |
+| --- | --- | --- |
+| Dev (hot reload) | `make up` | Uses `next dev -p 8277` — edits in `dashboard/src/` reload instantly |
+| Production | Change `target: dev` → `target: production` in `docker-compose.yml`, then `make build && make up` | Uses `next build && next start -p 8277` |
+| Local (no Docker) | `cd dashboard && npm install && npm run dev` | Runs directly on your machine |
+
+> The dashboard polls `/api/status` every 2 seconds for live telemetry (Docker containers, agent heartbeats, and swarm logs). Commands are dispatched via `POST /api/status` which publishes directly to Redis `swarm_tasks`.
+
+## Manager Chat (Recommended)
+
+OpenSwarm works best when you talk to a single “manager” first.
+
+1. Open the dashboard at `http://localhost:8277`
+2. In **Command Center**, choose **Manager**
+3. Write a plain initiative prompt (like a real agency brief)
+4. Click **Start Sync**
+
+What happens next:
+
+- The **manager_agent** runs a short “agency style” discussion (PM/TechLead/Designer/QA viewpoints).
+- It decides a plan, then dispatches small tasks to specialists.
+- You monitor progress live in:
+  - **Office Chat** (discussion, decisions, dispatch, lifecycle updates)
+  - **Workstream** (queued tasks)
+  - **Terminal** (swarm.log tail)
+
+### Skill: `/create-project`
+
+If your initiative needs a fresh workspace project, you can ask the Manager to create it for you:
+
+```text
+/create-project my-new-app
+Build a Next.js app with auth and a minimal dashboard.
+```
+
+This will scaffold the folder under `/workspace/projects/my-new-app` and the Manager will route all specialist work into that project path.
 
 ## Make Targets
 
@@ -134,6 +179,8 @@ You can scaffold new projects inside the persistent `/workspace/projects` volume
 make shell # Enter supervisor
 /app/scripts/create_project.sh my-new-app
 ```
+
+Or from the dashboard: use the Manager prompt with `/create-project my-new-app`.
 
 ### Task Examples
 
