@@ -5,7 +5,7 @@ DASHBOARD_PORT ?= 8277
 
 SHELL := /bin/bash
 
-.PHONY: build up dashboard swarm logs clean down recover shell new-project status restart scale swarm-init swarm-deploy
+.PHONY: build up dashboard swarm logs clean down recover shell new-project status restart scale swarm-init swarm-deploy dashboard-recreate dashboard-reset
 
 build:
 	docker compose build
@@ -15,6 +15,25 @@ up:
 
 dashboard:
 	@echo "Open http://localhost:$(DASHBOARD_PORT)"
+
+dashboard-build:
+	docker compose build dashboard
+
+dashboard-up:
+	docker compose up -d dashboard
+
+dashboard-logs:
+	docker compose logs -f dashboard
+
+dashboard-restart:
+	docker compose restart dashboard
+
+dashboard-recreate:
+	docker compose up -d --build --force-recreate dashboard
+
+dashboard-reset:
+	-docker volume rm openswarm-dashboard-node-modules
+	docker compose up -d --build --force-recreate dashboard
 
 swarm:
 	docker compose exec supervisor /app/agents/main_agent.sh

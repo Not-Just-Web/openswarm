@@ -34,13 +34,11 @@ RUN curl -fsSL https://ollama.com/install.sh | sh
 
 RUN npm install -g @anthropic-ai/claude-code openclaw opencode-ai@latest @google/gemini-cli
 
-COPY dashboard/package.json /app/dashboard/package.json
-RUN npm install --prefix /app/dashboard
+# Copy source (supervisor only — dashboard has its own Dockerfile)
+COPY . .
 
-COPY . /app
-
+# Fix permissions
 RUN chmod +x /app/scripts/*.sh /app/agents/*.sh /app/shared/*.sh
 
-EXPOSE 8277
-
-CMD ["tail", "-f", "/dev/null"]
+# Entrypoint for supervisor
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]

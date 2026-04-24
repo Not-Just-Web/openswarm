@@ -11,7 +11,8 @@ runtime/
 *.jsonl
 
 dashboard/node_modules/
-dashboard/package-lock.json
+dashboard/.next/
+.next/
 
 node_modules/
 npm-debug.log*

@@ -29,26 +29,34 @@ services:
     networks:
       - swarm-net
 
+  # Next.js dashboard (hot reload in dev)
   dashboard:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: dashboard/Dockerfile
+      target: dev                        # switch to 'production' for prod
     container_name: openswarm-dashboard
     ports:
-      - "${DASHBOARD_PORT:-8277}:${DASHBOARD_PORT:-8277}"
+      - "${DASHBOARD_PORT:-8277}:8277"   # always serves on 8277
     environment:
-      DASHBOARD_PORT: ${DASHBOARD_PORT:-8277}
+      OPENSWARM_ROOT: /app
+      OPENSWARM_WORKSPACE: /workspace/projects
       REDIS_HOST: redis
-      REDIS_PORT: 6379
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
     volumes:
-      - ./:/app
+      # Mount the whole app so Next can see tailwind/postcss config too.
+      # Keep node_modules inside the container for performance.
+      - ./dashboard:/app/dashboard
       - dashboard-node-modules:/app/dashboard/node_modules
+      - ./runtime:/app/runtime
+      - ./shared:/app/shared
+      - openswarm-workspace:/workspace
       - /var/run/docker.sock:/var/run/docker.sock
-    command: ["node", "/app/dashboard/server.js"]
     depends_on:
       redis:
         condition: service_healthy
-    restart: always
+    restart: unless-stopped
     networks:
       - swarm-net
 
@@ -86,8 +94,9 @@ services:
 
 volumes:
   ollama-data:
-  dashboard-node-modules:
   openswarm-workspace:
+  dashboard-node-modules:
+    name: openswarm-dashboard-node-modules
 
 networks:
   swarm-net:
