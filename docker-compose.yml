@@ -71,7 +71,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       OLLAMA_HOST: ollama:11434
-      OLLAMA_MODEL: ${OLLAMA_MODEL:-kimi}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-kimi2.5}
       HEARTBEAT_INTERVAL: 15
     volumes:
       - ./:/app

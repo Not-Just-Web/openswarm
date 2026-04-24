@@ -14,12 +14,12 @@ interface CommandCenterProps {
 }
 
 const AGENTS = [
-  { id: 'manager_agent', name: 'Main', icon: Users, color: 'text-violet-700', border: 'border-violet-200', bg: 'bg-violet-50' },
-  { id: 'coder_agent', name: 'Coder', icon: Code2, color: 'text-sky-700', border: 'border-sky-200', bg: 'bg-sky-50' },
-  { id: 'tester_agent', name: 'Tester', icon: ClipboardCheck, color: 'text-emerald-700', border: 'border-emerald-200', bg: 'bg-emerald-50' },
-  { id: 'pm_agent', name: 'PM', icon: Kanban, color: 'text-cyan-700', border: 'border-cyan-200', bg: 'bg-cyan-50' },
-  { id: 'techlead_agent', name: 'Tech Lead', icon: Shield, color: 'text-amber-700', border: 'border-amber-200', bg: 'bg-amber-50' },
-  { id: 'designer_agent', name: 'Designer', icon: Sparkles, color: 'text-teal-700', border: 'border-teal-200', bg: 'bg-teal-50' },
+  { id: 'manager_agent', name: 'Aria', role: 'Main Agent', icon: Users, color: 'text-violet-700', border: 'border-violet-200', bg: 'bg-violet-50' },
+  { id: 'coder_agent', name: 'Dex', role: 'Coder', icon: Code2, color: 'text-sky-700', border: 'border-sky-200', bg: 'bg-sky-50' },
+  { id: 'tester_agent', name: 'Mira', role: 'Tester', icon: ClipboardCheck, color: 'text-emerald-700', border: 'border-emerald-200', bg: 'bg-emerald-50' },
+  { id: 'pm_agent', name: 'Nova', role: 'PM', icon: Kanban, color: 'text-cyan-700', border: 'border-cyan-200', bg: 'bg-cyan-50' },
+  { id: 'techlead_agent', name: 'Sol', role: 'Tech Lead', icon: Shield, color: 'text-amber-700', border: 'border-amber-200', bg: 'bg-amber-50' },
+  { id: 'designer_agent', name: 'Lumi', role: 'Designer', icon: Sparkles, color: 'text-teal-700', border: 'border-teal-200', bg: 'bg-teal-50' },
 ];
 
 export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspacePath, workspaceOptions, onWorkspaceChange }: CommandCenterProps) {
@@ -57,7 +57,7 @@ export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspaceP
           </div>
           <div>
             <h2 className="text-2xl font-semibold text-stone-900 tracking-tight">Agent Chat</h2>
-            <p className="text-[12px] text-stone-500 font-medium">Talk to the main agent, steer the plan, and follow progress in one thread</p>
+            <p className="text-[12px] text-stone-500 font-medium">Talk to Aria, ask for team updates, or mention Dex, Mira, Nova, Sol, or Lumi by name</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspaceP
         {target !== 'manager_agent' && (
           <div className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded-2xl p-4">
             <span className="font-black tracking-widest uppercase text-[10px] block text-amber-700 mb-1">Direct Dispatch Warning</span>
-            You’re bypassing the Main Agent’s planning/discussion flow. Recommended for small, well-scoped tasks only.
+            You’re bypassing Aria’s planning/discussion flow. Recommended for small, well-scoped tasks only.
           </div>
         )}
 
@@ -99,6 +99,7 @@ export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspaceP
                 >
                   <agent.icon className={`w-5 h-5 ${target === agent.id ? agent.color : 'text-stone-400'}`} />
                   <span className="text-xs font-bold tracking-tight">{agent.name}</span>
+                  <span className="text-[10px] text-stone-400 font-medium">{agent.role}</span>
                 </button>
               ))}
             </div>
@@ -137,7 +138,7 @@ export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspaceP
         <div className="space-y-4">
           <div className="flex items-center justify-between ml-1">
             <label className="text-[11px] text-stone-500 font-semibold uppercase tracking-[0.18em]">Instruction</label>
-            <span className={`text-[11px] font-semibold ${selectedAgent.color}`}>Routing to {selectedAgent.name}</span>
+            <span className={`text-[11px] font-semibold ${selectedAgent.color}`}>Routing to {selectedAgent.name} • {selectedAgent.role}</span>
           </div>
           <div className="relative group">
             <textarea
@@ -145,8 +146,8 @@ export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspaceP
               onChange={(e) => setCommand(e.target.value)}
               placeholder={
                 target === 'manager_agent'
-                  ? 'Describe the initiative. Tip: use "/create-project my-app" to scaffold a new workspace project, then the Manager will assign specialists...'
-                  : `Tell the ${selectedAgent.name.toLowerCase()} what to do...`
+                  ? 'Describe the initiative, ask Aria for a status update, or say something like "Dex, take the API bug" and she will route it...'
+                  : `Tell ${selectedAgent.name} what to do...`
               }
               className="w-full bg-[linear-gradient(180deg,#fffcf7_0%,#f9f4eb_100%)] border border-stone-200 rounded-[2rem] p-6 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[rgba(176,141,87,0.18)] focus:border-[rgba(176,141,87,0.35)] transition-all min-h-[180px] resize-none font-medium text-lg leading-relaxed"
             />
@@ -155,7 +156,7 @@ export function CommandCenter({ onSendCommand, workspaceRoot, selectedWorkspaceP
               disabled={!command.trim()}
               className="absolute bottom-6 right-6 bg-stone-900 hover:bg-stone-800 disabled:opacity-20 disabled:hover:bg-stone-900 text-white px-7 py-3 rounded-2xl flex items-center gap-3 transition-all font-black tracking-widest text-xs shadow-lg shadow-stone-300/40 active:scale-95"
             >
-              <span>{target === 'manager_agent' ? 'Start Chat' : 'Dispatch'}</span>
+              <span>{target === 'manager_agent' ? 'Start Chat' : `Send to ${selectedAgent.name}`}</span>
               <Send className="w-4 h-4" />
             </button>
           </div>

@@ -5,6 +5,7 @@ ROOT_DIR="${OPENSWARM_ROOT:-/app}"
 WORKSPACE_ROOT="${OPENSWARM_WORKSPACE:-/workspace/projects}"
 source "${ROOT_DIR}/shared/logger.sh"
 source "${ROOT_DIR}/shared/bus.sh"
+source "${ROOT_DIR}/shared/ollama.sh"
 
 AGENT_NAME="coder_agent"
 TASK_PAYLOAD="${OPENSWARM_TASK_PAYLOAD:-{}}"
@@ -50,12 +51,13 @@ run_opencode() {
 }
 
 main() {
-  local target_dir prompt
+  local target_dir prompt model_note
   target_dir="$(resolve_target_dir)"
   prompt="$(jq -r '.command // .notes // "Implement the requested task"' <<< "${TASK_PAYLOAD}")"
+  model_note="$(ollama_generate "You are Dex, the coder in OpenSwarm using local model ${OLLAMA_MODEL}. In one short sentence, say what you are about to implement for this task: ${prompt}")" || true
   log_info "${AGENT_NAME}" "Starting task in ${target_dir}"
   append_chat "status" "I started implementation in ${target_dir}."
-  append_chat "thinking" "I'm working on: ${prompt}"
+  append_chat "thinking" "${model_note:-I'm working on: ${prompt}}"
   publish "swarm_logs" "$(message_json "${AGENT_NAME}" "dashboard" "log" "Coder agent started work")"
   run_opencode
   append_chat "done" "Implementation step finished. Main agent can review the outcome or assign follow-up work."

@@ -14,6 +14,7 @@ const LOG_FILE = path.join(ROOT_DIR, "runtime", "logs", "swarm.log");
 const HEARTBEAT_FILE = path.join(ROOT_DIR, "runtime", "heartbeats.jsonl");
 const OFFICE_CHAT_FILE = path.join(ROOT_DIR, "runtime", "office_chat.jsonl");
 const TASK_QUEUE_FILE = path.join(ROOT_DIR, "runtime", "task_queue.jsonl");
+const AGENT_ACTIVITY_FILE = path.join(ROOT_DIR, "runtime", "agent_activity.jsonl");
 const OPENSWARM_SERVICE_NAME = process.env.OPENSWARM_SERVICE_NAME || "openswarm";
 const OPENSWARM_COMPOSE_PROJECT = process.env.OPENSWARM_COMPOSE_PROJECT;
 
@@ -54,6 +55,13 @@ interface QueuedTask {
   target: string;
   payload: string;
   queued_at: string;
+}
+
+interface AgentActivity {
+  agent: string;
+  stage: string;
+  content: string;
+  timestamp: string;
 }
 
 interface WorkspaceProject {
@@ -125,6 +133,12 @@ function parseTaskQueue(): QueuedTask[] {
   return safeReadLines(TASK_QUEUE_FILE, 120)
     .map((line) => { try { return JSON.parse(line) as QueuedTask; } catch { return null; } })
     .filter((t): t is QueuedTask => t !== null);
+}
+
+function parseAgentActivity(): AgentActivity[] {
+  return safeReadLines(AGENT_ACTIVITY_FILE, 160)
+    .map((line) => { try { return JSON.parse(line) as AgentActivity; } catch { return null; } })
+    .filter((a): a is AgentActivity => a !== null);
 }
 
 function getWorkspaceSummary(): WorkspaceSummary {
@@ -257,6 +271,7 @@ export async function GET() {
     heartbeats: parseHeartbeats(),
     officeChat: parseOfficeChat(),
     taskQueue: parseTaskQueue(),
+    agentActivity: parseAgentActivity(),
     logs: safeReadLines(LOG_FILE, 100),
   });
 }
@@ -277,12 +292,11 @@ export async function POST(request: Request) {
   const projectPath = body.project_path || "";
 
   // Make the UI feel like a chat: record the user prompt immediately.
-  if (target === "manager_agent") {
+  if (target === "manager_agent" || target === "main_agent") {
     appendOfficeChat("user", "prompt", command || notes || "(empty)");
-    appendOfficeChat("main_agent", "status", "Main agent received the initiative and is starting team sync...");
+    // Let the actual main agent produce the first real reply through Ollama.
   } else {
     appendOfficeChat("user", "dispatch", `To ${target}: ${command || notes || "(empty)"}`);
-    appendOfficeChat("main_agent", "status", `Direct task queued for ${target}.`);
   }
 
   const payload = JSON.stringify({

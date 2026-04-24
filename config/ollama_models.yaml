@@ -1,3 +1,11 @@
 models:
-  - name: kimi
-    purpose: supervisor
+  - name: kimi2.5
+    purpose: primary-all-agents
+  - name: qwen3
+    purpose: popular-agentic-fallback
+  - name: deepseek-r1
+    purpose: popular-reasoning-fallback
+  - name: gemma3
+    purpose: popular-lightweight-fallback
+  - name: llama3.1
+    purpose: popular-general-fallback

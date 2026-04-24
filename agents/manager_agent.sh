@@ -3,11 +3,10 @@ set -euo pipefail
 
 ROOT_DIR="${OPENSWARM_ROOT:-/app}"
 WORKSPACE_ROOT="${OPENSWARM_WORKSPACE:-/workspace/projects}"
-OLLAMA_HOST="${OLLAMA_HOST:-ollama:11434}"
-OLLAMA_MODEL="${OLLAMA_MODEL:-kimi}"
 
 source "${ROOT_DIR}/shared/logger.sh"
 source "${ROOT_DIR}/shared/bus.sh"
+source "${ROOT_DIR}/shared/ollama.sh"
 
 AGENT_NAME="manager_agent"
 CHAT_FROM="main_agent"
@@ -75,23 +74,6 @@ maybe_create_project() {
   return 1
 }
 
-ollama_generate() {
-  local prompt="$1"
-  curl -fsS "http://${OLLAMA_HOST}/api/generate" \
-    -H "Content-Type: application/json" \
-    -d "$(jq -nc --arg model "${OLLAMA_MODEL}" --arg prompt "${prompt}" '{model:$model,prompt:$prompt,stream:false}')" \
-    | jq -r '.response // empty'
-}
-
-json_or_empty() {
-  local input="$1"
-  if jq -e . >/dev/null 2>&1 <<< "${input}"; then
-    printf '%s\n' "${input}"
-  else
-    printf '%s\n' "{}"
-  fi
-}
-
 main() {
   local prompt project_path
   prompt="$(jq -r '.command // .notes // empty' <<< "${TASK_PAYLOAD}")"
@@ -114,8 +96,8 @@ main() {
     append_chat "status" "Context switched to: ${project_path}"
   fi
 
-  append_chat "say" "I'm starting a team sync for this request."
-  append_chat "thinking" "First I'll clarify the goal, then I'll decide which agents should help."
+  append_chat "say" "I'm starting the team sync for this request."
+  append_chat "thinking" "First I'll clarify the goal, then I'll decide which teammates should help."
   publish "swarm_logs" "$(message_json "${AGENT_NAME}" "dashboard" "log" "manager_agent: starting office discussion")"
 
   # Ask the model to simulate an agency-style discussion and produce a dispatch plan.
@@ -152,7 +134,7 @@ EOF
   )"
 
   llm_out="$(ollama_generate "${system_prompt}\n\nproject_path: ${project_path}\n\nuser_prompt: ${prompt}")" || llm_out=""
-  plan_json="$(json_or_empty "${llm_out}")"
+  plan_json="$(ollama_json_or_empty "${llm_out}")"
 
   # Write discussion messages (best-effort).
   jq -c '.discussion[]? // empty' <<< "${plan_json}" 2>/dev/null | while read -r msg; do
@@ -192,11 +174,11 @@ EOF
     [[ -n "${pp}" ]] || pp="${project_path}"
     [[ -n "${cmd}" ]] || continue
 
-    append_chat "dispatch" "Next: ${target} will work on '${cmd}'."
+    append_chat "dispatch" "Next, ${target} will work on '${cmd}'."
     publish "swarm_tasks" "$(jq -nc --arg task_id "task-$(date +%s)" --arg target "${target}" --arg cmd "${cmd}" --arg pp "${pp}" '{task_id:$task_id,target:$target,payload:{command:$cmd,project_path:$pp}}')"
   done
 
-  append_chat "done" "Planning is complete. I'm now monitoring progress and will keep updating this thread."
+  append_chat "done" "Planning is complete. I'll keep monitoring progress and updating this thread."
   publish "swarm_logs" "$(message_json "${AGENT_NAME}" "dashboard" "log" "manager_agent: dispatched tasks")"
 }
 

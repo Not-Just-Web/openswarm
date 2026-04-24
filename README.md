@@ -4,6 +4,8 @@
 
 A decoupled, microservices-based multi-agent AI swarm. Orchestrated via Shell, powered by Ollama, and monitored through a live browser dashboard.
 
+![OpenSwarm Dashboard](docs/dashboard-ui.png)
+
 ## Architecture
 
 ```mermaid
@@ -70,17 +72,16 @@ flowchart TD
     UI --> BR["Browser Dashboard"]
 ```
 
-### Agent Roles
+### Agent Team
 
-| Agent | Expertise |
-| --- | --- |
-| `main_agent` | Supervisor, routing, and container orchestration |
-| `manager_agent` | Agency-style planning + discussion, then dispatches work to specialists |
-| `coder_agent` | Full-stack development and bug fixing |
-| `tester_agent` | Quality assurance and verification |
-| `pm_agent` | Planning, summaries, and logic framing |
-| `techlead_agent` | Technical architecture and review |
-| `designer_agent` | UI/UX and product polish |
+| Internal Agent | Dashboard Name | Role |
+| --- | --- | --- |
+| `main_agent` / `manager_agent` | `Aria` | Main Agent, routing, team discussion, status replies |
+| `coder_agent` | `Dex` | Full-stack development and bug fixing |
+| `tester_agent` | `Mira` | QA, verification, test coverage |
+| `pm_agent` | `Nova` | Planning, backlog framing, product clarity |
+| `techlead_agent` | `Sol` | Architecture, technical review, implementation direction |
+| `designer_agent` | `Lumi` | UI/UX, polish, and visual product thinking |
 
 ## Project Layout
 
@@ -100,6 +101,7 @@ flowchart TD
 ## Features
 
 - **Microservices**: Decoupled Redis, Ollama, Dashboard, and Supervisor containers.
+- **Local-First Models**: All agents default to the same local Ollama model, `kimi2.5`.
 - **Next.js Dashboard**: TypeScript + Tailwind CSS UI with hot reload in dev mode.
 - **Horizontal Scaling**: Use `make scale agent=coder_agent num=3` for parallel processing.
 - **Auto-Respawn**: Built-in healthchecks and `restart: always` logic.
@@ -108,13 +110,55 @@ flowchart TD
 
 ## Quick Start
 
+### Prerequisites
+
+- Docker Desktop with Compose enabled
+- GNU Make
+- Enough local RAM for Docker + Ollama models
+
+### Install and Setup
+
 ```bash
 cp .env.example .env
 make build   # builds all Docker images
 make up      # starts the full stack
 ```
 
+By default the stack uses:
+
+```bash
+OLLAMA_MODEL=kimi2.5
+```
+
+OpenSwarm also pre-pulls a few widely used Ollama models during bootstrap so you have local fallbacks available:
+
+- `qwen3`
+- `deepseek-r1`
+- `gemma3`
+- `llama3.1`
+
+Optional local dashboard development:
+
+```bash
+cd dashboard
+npm install
+npm run dev
+```
+
+Useful first checks:
+
+```bash
+make status
+make dashboard-logs
+```
+
 Visit **[http://localhost:8277](http://localhost:8277)** — served by the Next.js dashboard.
+
+### Model Setup Notes
+
+- All agents are configured to use local Ollama and the same default model: `kimi2.5`
+- Bootstrap pulls models listed in [config/ollama_models.yaml](/Users/Sanjay.Adhikari/Drive/multiple-agent-docker/config/ollama_models.yaml)
+- If your local Kimi tag is different, change `OLLAMA_MODEL` in `.env`
 
 ## Dashboard
 
@@ -128,23 +172,47 @@ The dashboard (`dashboard/`) is a standalone **Next.js 16 + TypeScript** app.
 
 > The dashboard polls `/api/status` every 2 seconds for live telemetry (Docker containers, agent heartbeats, and swarm logs). Commands are dispatched via `POST /api/status` which publishes directly to Redis `swarm_tasks`.
 
+### Dashboard Experience
+
+- **Agent Chat**: Aria replies first, keeps the main conversation visible, and explains what happens next.
+- **Group Discussion**: Nova, Sol, Lumi, Mira, and Dex can appear directly in the same thread with their own avatars and updates.
+- **Workspace Picker**: choose the root workspace or any existing project from a dropdown before starting chat.
+- **Agent Monitor**: click an agent to inspect its current status and recent log output.
+- **Workstream**: see queued tasks and handoffs between agents in real time.
+- **Footer Pages**: Documentation and Memory Vault open in a new tab from the dashboard footer.
+- **Chat-First Layout**: the conversation stays front and center so updates are visible immediately, more like Copilot or Claude-style agent chat.
+
 ## Manager Chat (Recommended)
 
-OpenSwarm works best when you talk to a single “manager” first.
+OpenSwarm works best when you talk to a single main agent first.
 
 1. Open the dashboard at `http://localhost:8277`
-2. In **Command Center**, choose **Manager**
-3. Write a plain initiative prompt (like a real agency brief)
-4. Click **Start Sync**
+2. In **Agent Chat**, choose **Aria**
+3. Write a plain initiative prompt or ask a conversational question
+4. Click **Start Chat**
 
 What happens next:
 
-- The **manager_agent** runs a short “agency style” discussion (PM/TechLead/Designer/QA viewpoints).
-- It decides a plan, then dispatches small tasks to specialists.
+- **Aria** responds from the local Ollama model in chat.
+- The planning layer runs an agency-style discussion (PM/TechLead/Designer/QA viewpoints).
+- The main agent decides a plan, then dispatches small tasks to specialists.
 - You monitor progress live in:
-  - **Office Chat** (discussion, decisions, dispatch, lifecycle updates)
+  - **Chat Thread** (discussion, thinking, decisions, dispatch, lifecycle updates)
   - **Workstream** (queued tasks)
-  - **Terminal** (swarm.log tail)
+  - **Agent Monitor** (manual inspection per agent)
+  - **Terminal** (`swarm.log` tail)
+
+### Talking To The Team
+
+You can keep the conversation natural:
+
+- `Aria, how is the team doing?`
+- `What's the update on the current task?`
+- `Dex, take the API integration in the selected workspace.`
+- `Mira, verify the auth flow after Dex finishes.`
+- `Nova, break this into milestones.`
+
+Aria will answer quick status questions directly in the chat thread. If you mention a teammate by name, Aria can route the request to that specialist while keeping the conversation visible in the same thread.
 
 ### Skill: `/create-project`
 

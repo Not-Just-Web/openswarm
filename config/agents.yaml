@@ -1,20 +1,20 @@
 agents:
   - name: main_agent
     role: supervisor
-    model: kimi
+    model: kimi2.5
     channel: swarm_tasks
   - name: coder_agent
     role: senior_full_stack_developer
-    tool: opencode
+    model: kimi2.5
   - name: tester_agent
     role: senior_qa_engineer
-    tool: shell
+    model: kimi2.5
   - name: pm_agent
     role: product_manager
-    tool: shell
+    model: kimi2.5
   - name: techlead_agent
     role: architect
-    tool: shell
+    model: kimi2.5
   - name: designer_agent
     role: ui_ux_designer
-    tool: shell
+    model: kimi2.5

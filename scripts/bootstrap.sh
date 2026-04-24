@@ -20,7 +20,7 @@ wait_for_ollama() {
 
 pull_models() {
   if [[ ! -f "${MODELS_FILE}" ]]; then
-    ollama pull "${OLLAMA_MODEL:-kimi}"
+    ollama pull "${OLLAMA_MODEL:-kimi2.5}"
     return
   fi
 
